@@ -38,6 +38,14 @@ class DailyTaskViewModel @Inject constructor(
         }
     }
 
+    fun insertPredefinedTasksIfEmpty() {
+        viewModelScope.launch {
+            if (repository.getTaskCount() == 0) {
+                repository.insertAllDailyTasks(getPredefinedTasks())
+            }
+        }
+    }
+
     fun getPredefinedTasks(): List<DailyTask> {
         return listOf(
             DailyTask(name = "Se réveiller à l'heure choisie", order = 1),
