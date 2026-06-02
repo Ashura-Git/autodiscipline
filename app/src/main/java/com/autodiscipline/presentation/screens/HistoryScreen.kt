@@ -33,7 +33,8 @@ fun HistoryScreen(navController: NavController, dayRecordViewModel: DayRecordVie
             Text("Aucun enregistrement de journée disponible.")
         } else {
             LazyColumn {
-                items(allDayRecords) {\n                    DayRecordItem(dayRecord = it, dateFormatter = dateFormatter) {
+                items(allDayRecords) {
+                    DayRecordItem(dayRecord = it, dateFormatter = dateFormatter) {
                         // TODO: Navigate to detail screen for this day record
                     }
                 }
@@ -58,7 +59,6 @@ fun DayRecordItem(dayRecord: DayRecord, dateFormatter: SimpleDateFormat, onClick
             Spacer(modifier = Modifier.height(8.dp))
             Text("Tâches réalisées: ${dayRecord.completedTasks.size}")
             Text("Tâches non réalisées: ${dayRecord.failedTasks.size}")
-            // TODO: Display observations for this day record
         }
     }
 }
