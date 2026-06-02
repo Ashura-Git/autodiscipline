@@ -1,59 +1,64 @@
-package com.autodiscipline.presentation.components
+package com.autodiscipline.presentation.screens
 
-import androidx.compose.runtime.Composable
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Card
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.viewinterop.AndroidView
-import com.github.mikephil.charting.charts.LineChart
-import com.github.mikephil.charting.data.Entry
-import com.github.mikephil.charting.data.LineDataSet
-import com.github.mikephil.charting.data.LineData
-import com.github.mikephil.charting.components.XAxis
-import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
-import android.graphics.Color
+import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
+import com.autodiscipline.data.model.DayRecord
+import com.autodiscipline.presentation.viewmodel.DayRecordViewModel
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 @Composable
-fun LineChartComponent(modifier: Modifier = Modifier, entries: List<Entry>, labels: List<String>) {
-    AndroidView(
-        modifier = modifier,
-        factory = {
-            LineChart(it).apply {
-                description.isEnabled = false
-                setTouchEnabled(true)
-                isDragEnabled = true
-                setScaleEnabled(true)
-                setPinchZoom(true)
-                setDrawGridBackground(false)
+fun HistoryScreen(navController: NavController, dayRecordViewModel: DayRecordViewModel = hiltViewModel()) {
+    val allDayRecords by dayRecordViewModel.allDayRecords.collectAsState()
+    val dateFormatter = remember { SimpleDateFormat("EEEE d MMMM yyyy", Locale.getDefault()) }
 
-                xAxis.apply {
-                    position = XAxis.XAxisPosition.BOTTOM
-                    setDrawGridLines(false)
-                    setDrawAxisLine(true)
-                    textColor = Color.BLACK
-                    valueFormatter = IndexAxisValueFormatter(labels)
-                    granularity = 1f
+    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+        Text(
+            text = "Historique des Journées",
+            style = MaterialTheme.typography.headlineLarge,
+            modifier = Modifier.padding(bottom = 16.dp)
+        )
+
+        if (allDayRecords.isEmpty()) {
+            Text("Aucun enregistrement de journée disponible.")
+        } else {
+            LazyColumn {
+                items(allDayRecords) {
+                    DayRecordItem(dayRecord = it, dateFormatter = dateFormatter) {
+                        // TODO: Navigate to detail screen for this day record
+                    }
                 }
-
-                axisLeft.apply {
-                    setDrawGridLines(true)
-                    textColor = Color.BLACK
-                }
-
-                axisRight.isEnabled = false
-
-                legend.isEnabled = false
             }
-        },
-        update = {
-            val dataSet = LineDataSet(entries, "Label").apply {
-                color = Color.BLUE
-                setCircleColor(Color.BLUE)
-                lineWidth = 2f
-                circleRadius = 4f
-                setDrawCircleHole(false)
-                valueTextSize = 0f
-            }
-            it.data = LineData(dataSet)
-            it.invalidate()
         }
-    )
+    }
+}
+
+@Composable
+fun DayRecordItem(dayRecord: DayRecord, dateFormatter: SimpleDateFormat, onClick: () -> Unit) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp)
+            .clickable(onClick = onClick)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(
+                text = dateFormatter.format(dayRecord.date),
+                style = MaterialTheme.typography.headlineSmall
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text("Tâches réalisées: ${dayRecord.completedTasks.size}")
+            Text("Tâches non réalisées: ${dayRecord.failedTasks.size}")
+        }
+    }
 }
