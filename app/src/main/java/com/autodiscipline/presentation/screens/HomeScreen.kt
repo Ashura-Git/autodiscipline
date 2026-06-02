@@ -18,7 +18,6 @@ import com.autodiscipline.presentation.viewmodel.DailyTaskViewModel
 import com.autodiscipline.presentation.viewmodel.DayRecordViewModel
 import java.text.SimpleDateFormat
 import java.util.Calendar
-import java.util.Date
 import java.util.Locale
 
 @Composable
@@ -27,14 +26,12 @@ fun HomeScreen(navController: NavController, dailyTaskViewModel: DailyTaskViewMo
     val currentDay = remember { Calendar.getInstance().time }
     val dateFormatter = remember { SimpleDateFormat("EEEE d MMMM yyyy", Locale.getDefault()) }
 
-    // State to hold the checked status of each task
     val checkedStates = remember { mutableStateMapOf<Int, Boolean>() }
 
     LaunchedEffect(dailyTasks) {
         if (dailyTasks.isEmpty()) {
             dailyTaskViewModel.insertAllDailyTasks(dailyTaskViewModel.getPredefinedTasks())
         }
-        // Initialize checked states when tasks are loaded
         dailyTasks.forEach { task ->
             if (!checkedStates.containsKey(task.id)) {
                 checkedStates[task.id] = false
@@ -59,8 +56,8 @@ fun HomeScreen(navController: NavController, dailyTaskViewModel: DailyTaskViewMo
 
         LazyColumn(modifier = Modifier.weight(1f)) {
             items(dailyTasks) {
-                TaskItem(task = it, isChecked = checkedStates[it.id] ?: false) {
-                    checkedStates[it.id] = it
+                TaskItem(task = it, isChecked = checkedStates[it.id] ?: false) { checked ->
+                    checkedStates[it.id] = checked
                 }
             }
         }
@@ -74,9 +71,7 @@ fun HomeScreen(navController: NavController, dailyTaskViewModel: DailyTaskViewMo
                 failedTasks = failedTasks
             )
             dayRecordViewModel.saveDayRecord(dayRecord)
-            // Reset checked states for the next day
             checkedStates.keys.forEach { key -> checkedStates[key] = false }
-            // TODO: Navigate to a confirmation screen or show a toast
         }, modifier = Modifier.fillMaxWidth().padding(top = 16.dp)) {
             Text(text = "Enregistrer la journée")
         }
@@ -94,7 +89,7 @@ fun TaskItem(task: DailyTask, isChecked: Boolean, onCheckedChange: (Boolean) -> 
             Checkbox(checked = isChecked, onCheckedChange = onCheckedChange)
             Text(text = task.name, style = MaterialTheme.typography.bodyLarge)
         }
-        Button(onClick = { /* TODO: Handle observation */ }) {
+        Button(onClick = { }) {
             Text(text = "Observation")
         }
     }
