@@ -1,5 +1,6 @@
 plugins {
     id("com.android.application")
+    id("kotlin-kapt")
     id("org.jetbrains.kotlin.android")
     id("com.google.devtools.ksp") version "1.9.0-1.0.13" // KSP plugin
     id("com.google.dagger.hilt.android") // Hilt plugin
