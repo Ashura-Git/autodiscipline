@@ -43,13 +43,14 @@ fun LineChartComponent(modifier: Modifier = Modifier, entries: List<Entry>, labe
                 legend.isEnabled = false
             }
         },
-        update = {\n            val dataSet = LineDataSet(entries, "Label").apply {
+        update = {
+            val dataSet = LineDataSet(entries, "Label").apply {
                 color = Color.BLUE
                 setCircleColor(Color.BLUE)
                 lineWidth = 2f
                 circleRadius = 4f
                 setDrawCircleHole(false)
-                valueTextSize = 0f // Hide values on chart
+                valueTextSize = 0f
             }
             it.data = LineData(dataSet)
             it.invalidate()
