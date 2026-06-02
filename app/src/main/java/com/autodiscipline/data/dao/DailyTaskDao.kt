@@ -17,4 +17,7 @@ interface DailyTaskDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAllDailyTasks(dailyTasks: List<DailyTask>)
+
+    @Query("SELECT COUNT(*) FROM daily_tasks")
+    suspend fun getTaskCount(): Int
 }
