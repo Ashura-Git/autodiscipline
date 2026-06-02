@@ -3,10 +3,7 @@ package com.autodiscipline.presentation.screens
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Button
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -14,6 +11,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.autodiscipline.data.model.DailyTask
+import com.autodiscipline.data.model.Observation
 import com.autodiscipline.presentation.viewmodel.DailyTaskViewModel
 import com.autodiscipline.presentation.viewmodel.DayRecordViewModel
 import java.text.SimpleDateFormat
@@ -25,8 +23,11 @@ fun HomeScreen(navController: NavController, dailyTaskViewModel: DailyTaskViewMo
     val dailyTasks by dailyTaskViewModel.dailyTasks.collectAsState()
     val currentDay = remember { Calendar.getInstance().time }
     val dateFormatter = remember { SimpleDateFormat("EEEE d MMMM yyyy", Locale.getDefault()) }
-
     val checkedStates = remember { mutableStateMapOf<Int, Boolean>() }
+    val observationStates = remember { mutableStateMapOf<Int, String>() }
+    var showObservationDialog by remember { mutableStateOf(false) }
+    var selectedTaskId by remember { mutableStateOf<Int?>(null) }
+    var savedDayRecordId by remember { mutableStateOf<Long?>(null) }
 
     LaunchedEffect(dailyTasks) {
         if (dailyTasks.isEmpty()) {
@@ -37,6 +38,34 @@ fun HomeScreen(navController: NavController, dailyTaskViewModel: DailyTaskViewMo
                 checkedStates[task.id] = false
             }
         }
+    }
+
+    if (showObservationDialog && selectedTaskId != null) {
+        val taskName = dailyTasks.find { it.id == selectedTaskId }?.name ?: ""
+        AlertDialog(
+            onDismissRequest = { showObservationDialog = false },
+            title = { Text("Observation") },
+            text = {
+                Column {
+                    Text(taskName, style = MaterialTheme.typography.bodyMedium)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    OutlinedTextField(
+                        value = observationStates[selectedTaskId] ?: "",
+                        onValueChange = { observationStates[selectedTaskId!!] = it },
+                        label = { Text("Votre observation") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            },
+            confirmButton = {
+                Button(onClick = {
+                    showObservationDialog = false
+                }) { Text("OK") }
+            },
+            dismissButton = {
+                TextButton(onClick = { showObservationDialog = false }) { Text("Annuler") }
+            }
+        )
     }
 
     Column(
@@ -55,10 +84,17 @@ fun HomeScreen(navController: NavController, dailyTaskViewModel: DailyTaskViewMo
         )
 
         LazyColumn(modifier = Modifier.weight(1f)) {
-            items(dailyTasks) {
-                TaskItem(task = it, isChecked = checkedStates[it.id] ?: false) { checked ->
-                    checkedStates[it.id] = checked
-                }
+            items(dailyTasks) { task ->
+                TaskItem(
+                    task = task,
+                    isChecked = checkedStates[task.id] ?: false,
+                    observation = observationStates[task.id] ?: "",
+                    onCheckedChange = { checked -> checkedStates[task.id] = checked },
+                    onObservationClick = {
+                        selectedTaskId = task.id
+                        showObservationDialog = true
+                    }
+                )
             }
         }
 
@@ -72,6 +108,7 @@ fun HomeScreen(navController: NavController, dailyTaskViewModel: DailyTaskViewMo
             )
             dayRecordViewModel.saveDayRecord(dayRecord)
             checkedStates.keys.forEach { key -> checkedStates[key] = false }
+            observationStates.clear()
         }, modifier = Modifier.fillMaxWidth().padding(top = 16.dp)) {
             Text(text = "Enregistrer la journée")
         }
@@ -79,18 +116,40 @@ fun HomeScreen(navController: NavController, dailyTaskViewModel: DailyTaskViewMo
 }
 
 @Composable
-fun TaskItem(task: DailyTask, isChecked: Boolean, onCheckedChange: (Boolean) -> Unit) {
-    Row(
-        modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
+fun TaskItem(
+    task: DailyTask,
+    isChecked: Boolean,
+    observation: String,
+    onCheckedChange: (Boolean) -> Unit,
+    onObservationClick: () -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Checkbox(checked = isChecked, onCheckedChange = onCheckedChange)
-            Text(text = task.name, style = MaterialTheme.typography.bodyLarge)
-        }
-        Button(onClick = { }) {
-            Text(text = "Observation")
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Row(
+                modifier = Modifier.weight(1f),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Checkbox(checked = isChecked, onCheckedChange = onCheckedChange)
+                Column {
+                    Text(text = task.name, style = MaterialTheme.typography.bodyLarge)
+                    if (observation.isNotEmpty()) {
+                        Text(
+                            text = "📝 $observation",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                }
+            }
+            TextButton(onClick = onObservationClick) {
+                Text("+ Note")
+            }
         }
     }
 }
