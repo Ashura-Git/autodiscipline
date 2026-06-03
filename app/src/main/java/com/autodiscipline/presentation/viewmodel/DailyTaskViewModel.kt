@@ -18,31 +18,30 @@ class DailyTaskViewModel @Inject constructor(
     private val _dailyTasks = MutableStateFlow<List<DailyTask>>(emptyList())
     val dailyTasks: StateFlow<List<DailyTask>> = _dailyTasks
 
-    val checkedStates = MutableStateFlow<Map<Int, Boolean>>(emptyMap())
-    val observationStates = MutableStateFlow<Map<Int, String>>(emptyMap())
-
     init {
         viewModelScope.launch {
             repository.getAllDailyTasks().collect { tasks ->
                 _dailyTasks.value = tasks
-                if (checkedStates.value.isEmpty()) {
-                    checkedStates.value = tasks.associate { it.id to false }
-                }
             }
         }
     }
 
     fun setChecked(taskId: Int, checked: Boolean) {
-        checkedStates.value = checkedStates.value.toMutableMap().also { it[taskId] = checked }
+        viewModelScope.launch {
+            repository.updateChecked(taskId, checked)
+        }
     }
 
     fun setObservation(taskId: Int, text: String) {
-        observationStates.value = observationStates.value.toMutableMap().also { it[taskId] = text }
+        viewModelScope.launch {
+            repository.updateObservation(taskId, text)
+        }
     }
 
     fun resetAll() {
-        checkedStates.value = _dailyTasks.value.associate { it.id to false }
-        observationStates.value = emptyMap()
+        viewModelScope.launch {
+            repository.resetAll()
+        }
     }
 
     fun insertDailyTask(dailyTask: DailyTask) {
