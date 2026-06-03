@@ -20,8 +20,8 @@ import java.util.Locale
 @Composable
 fun HomeScreen(navController: NavController, dailyTaskViewModel: DailyTaskViewModel = hiltViewModel(), dayRecordViewModel: DayRecordViewModel = hiltViewModel()) {
     val dailyTasks by dailyTaskViewModel.dailyTasks.collectAsState()
-    val checkedStates by dailyTaskViewModel.checkedStates.collectAsState()
-    val observationStates by dailyTaskViewModel.observationStates.collectAsState()
+    val checkedStates = dailyTasks.associate { it.id to it.isChecked }
+    val observationStates = dailyTasks.associate { it.id to it.observation }
     val currentDay = remember { Calendar.getInstance().time }
     val dateFormatter = remember { SimpleDateFormat("EEEE d MMMM yyyy", Locale.getDefault()) }
     var showObservationDialog by remember { mutableStateOf(false) }
