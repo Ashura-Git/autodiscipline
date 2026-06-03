@@ -15,4 +15,10 @@ class DailyTaskRepository @Inject constructor(
     suspend fun insertAllDailyTasks(dailyTasks: List<DailyTask>) = dailyTaskDao.insertAllDailyTasks(dailyTasks)
 
     suspend fun getTaskCount(): Int = dailyTaskDao.getTaskCount()
+
+    suspend fun updateChecked(taskId: Int, checked: Boolean) = dailyTaskDao.updateChecked(taskId, checked)
+
+    suspend fun updateObservation(taskId: Int, observation: String) = dailyTaskDao.updateObservation(taskId, observation)
+
+    suspend fun resetAll() = dailyTaskDao.resetAll()
 }
