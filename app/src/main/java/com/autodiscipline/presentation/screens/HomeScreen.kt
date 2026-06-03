@@ -1,4 +1,3 @@
-
 package com.autodiscipline.presentation.screens
 
 import androidx.compose.foundation.layout.*
@@ -21,23 +20,15 @@ import java.util.Locale
 @Composable
 fun HomeScreen(navController: NavController, dailyTaskViewModel: DailyTaskViewModel = hiltViewModel(), dayRecordViewModel: DayRecordViewModel = hiltViewModel()) {
     val dailyTasks by dailyTaskViewModel.dailyTasks.collectAsState()
+    val checkedStates by dailyTaskViewModel.checkedStates.collectAsState()
+    val observationStates by dailyTaskViewModel.observationStates.collectAsState()
     val currentDay = remember { Calendar.getInstance().time }
     val dateFormatter = remember { SimpleDateFormat("EEEE d MMMM yyyy", Locale.getDefault()) }
-    val checkedStates = remember { mutableStateMapOf<Int, Boolean>() }
-    val observationStates = remember { mutableStateMapOf<Int, String>() }
     var showObservationDialog by remember { mutableStateOf(false) }
     var selectedTaskId by remember { mutableStateOf<Int?>(null) }
 
     LaunchedEffect(Unit) {
         dailyTaskViewModel.insertPredefinedTasksIfEmpty()
-    }
-
-    LaunchedEffect(dailyTasks) {
-        dailyTasks.forEach { task ->
-            if (!checkedStates.containsKey(task.id)) {
-                checkedStates[task.id] = false
-            }
-        }
     }
 
     if (showObservationDialog && selectedTaskId != null) {
@@ -51,7 +42,7 @@ fun HomeScreen(navController: NavController, dailyTaskViewModel: DailyTaskViewMo
                     Spacer(modifier = Modifier.height(8.dp))
                     OutlinedTextField(
                         value = observationStates[selectedTaskId] ?: "",
-                        onValueChange = { observationStates[selectedTaskId!!] = it },
+                        onValueChange = { dailyTaskViewModel.setObservation(selectedTaskId!!, it) },
                         label = { Text("Votre observation") },
                         modifier = Modifier.fillMaxWidth()
                     )
@@ -87,7 +78,7 @@ fun HomeScreen(navController: NavController, dailyTaskViewModel: DailyTaskViewMo
                     task = task,
                     isChecked = checkedStates[task.id] ?: false,
                     observation = observationStates[task.id] ?: "",
-                    onCheckedChange = { checked -> checkedStates[task.id] = checked },
+                    onCheckedChange = { checked -> dailyTaskViewModel.setChecked(task.id, checked) },
                     onObservationClick = {
                         selectedTaskId = task.id
                         showObservationDialog = true
@@ -105,8 +96,7 @@ fun HomeScreen(navController: NavController, dailyTaskViewModel: DailyTaskViewMo
                 failedTasks = failedTasks
             )
             dayRecordViewModel.saveDayRecord(dayRecord)
-            checkedStates.keys.forEach { key -> checkedStates[key] = false }
-            observationStates.clear()
+            dailyTaskViewModel.resetAll()
         }, modifier = Modifier.fillMaxWidth().padding(top = 16.dp)) {
             Text(text = "Enregistrer la journée")
         }
