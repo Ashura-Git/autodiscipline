@@ -1,3 +1,7 @@
 <resources>
-    <style name="Theme.Autodiscipline" parent="android:Theme.Material.Light.NoActionBar" />
+    <style name="Theme.Autodiscipline" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">#0A0A1A</item>
+        <item name="android:statusBarColor">#0A0A1A</item>
+        <item name="android:navigationBarColor">#0A0A1A</item>
+    </style>
 </resources>
