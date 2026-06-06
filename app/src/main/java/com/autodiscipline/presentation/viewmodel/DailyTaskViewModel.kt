@@ -60,6 +60,18 @@ class DailyTaskViewModel @Inject constructor(
         }
     }
 
+    fun addMissingTasks() {
+        viewModelScope.launch {
+            val currentTasks = _dailyTasks.value
+            val newTasks = getPredefinedTasks()
+            newTasks.forEach { newTask ->
+                if (currentTasks.none { it.name == newTask.name }) {
+                    repository.insertDailyTask(newTask)
+                }
+            }
+        }
+    }
+
     fun getPredefinedTasks(): List<DailyTask> {
         return listOf(
             DailyTask(name = "Se réveiller à l'heure choisie", order = 1),
@@ -74,7 +86,8 @@ class DailyTaskViewModel @Inject constructor(
             DailyTask(name = "1 h sans Internet (12 h à 13 h)", order = 10),
             DailyTask(name = "Révision et préparation du lendemain", order = 11),
             DailyTask(name = "Bilan de la journée", order = 12),
-            DailyTask(name = "Prière du soir", order = 13)
+            DailyTask(name = "Prière du soir", order = 13),
+            DailyTask(name = "Pas de pornographie", order = 14)
         )
     }
 }
