@@ -5,8 +5,8 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "daily_tasks")
 data class DailyTask(
-    @PrimaryKey(autoGenerate = true)
-    val id: Int = 0,
+    @PrimaryKey
+    val id: Int,
     val name: String,
     val order: Int,
     val isChecked: Boolean = false,
