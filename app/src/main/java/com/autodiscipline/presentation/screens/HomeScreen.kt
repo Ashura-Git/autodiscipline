@@ -11,8 +11,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.autodiscipline.data.model.DailyTask
+import com.autodiscipline.notification.NotificationScheduler
 import com.autodiscipline.presentation.viewmodel.DailyTaskViewModel
 import com.autodiscipline.presentation.viewmodel.DayRecordViewModel
 import java.text.SimpleDateFormat
@@ -32,6 +33,7 @@ fun HomeScreen(
     dailyTaskViewModel: DailyTaskViewModel = hiltViewModel(),
     dayRecordViewModel: DayRecordViewModel = hiltViewModel()
 ) {
+    val context = LocalContext.current
     val dailyTasks by dailyTaskViewModel.dailyTasks.collectAsState()
     val checkedStates = dailyTasks.associate { it.id to it.isChecked }
     val observationStates = dailyTasks.associate { it.id to it.observation }
@@ -98,7 +100,6 @@ fun HomeScreen(
         ) {
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Titre
             Text(
                 text = "⚔ QUÊTE QUOTIDIENNE",
                 fontSize = 22.sp,
@@ -116,7 +117,6 @@ fun HomeScreen(
                 modifier = Modifier.padding(top = 4.dp, bottom = 8.dp)
             )
 
-            // Barre de progression
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -145,7 +145,6 @@ fun HomeScreen(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Liste des tâches
             LazyColumn(modifier = Modifier.weight(1f)) {
                 items(dailyTasks) { task ->
                     SoloTaskItem(
@@ -162,7 +161,6 @@ fun HomeScreen(
                 }
             }
 
-            // Bouton enregistrer
             Button(
                 onClick = {
                     val completedTasks = dailyTasks.filter { checkedStates[it.id] == true }.map { it.id }
@@ -174,14 +172,29 @@ fun HomeScreen(
                     )
                     dayRecordViewModel.saveDayRecord(dayRecord)
                     dailyTaskViewModel.resetAll()
+
+                    if (failedTasks.isEmpty()) {
+                        NotificationScheduler.sendSuccessNotification(context)
+                    } else {
+                        val punishments = listOf(
+                            "50 pompes maintenant !",
+                            "30 minutes de lecture immédiatement",
+                            "1 heure d'étude supplémentaire",
+                            "20 minutes de méditation",
+                            "Courir 2 km ce soir",
+                            "Écrire 3 pages de révision"
+                        )
+                        val punishment = punishments.random()
+                        NotificationScheduler.sendFailureNotification(
+                            context, failedTasks.size, punishment
+                        )
+                    }
                 },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 12.dp)
                     .height(52.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF9B59B6)
-                ),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF9B59B6)),
                 shape = RoundedCornerShape(10.dp)
             ) {
                 Text(
