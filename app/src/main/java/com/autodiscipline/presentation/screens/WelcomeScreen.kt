@@ -67,9 +67,9 @@ fun WelcomeScreen(navController: NavController, viewModel: WakeUpTimeViewModel =
 
     LaunchedEffect(wakeUpTime) {
         if (wakeUpTime != null) {
-            navController.navigate(Screen.Home.route) {
-                popUpTo(Screen.Welcome.route) { inclusive = true }
-            }
+            navController.navigate(Screen.Intro.route) {
+    popUpTo(Screen.Welcome.route) { inclusive = true }
+}
         }
     }
 
