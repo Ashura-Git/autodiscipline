@@ -119,6 +119,7 @@ fun AutodisciplineApp() {
             navController = navController,
             startDestination = Screen.Welcome.route,
             modifier = Modifier.padding(paddingValues)
+            composable(Screen.Intro.route) { IntroScreen(navController = navController) }
         ) {
             composable(Screen.Welcome.route) { WelcomeScreen(navController = navController) }
             composable(Screen.Home.route) { HomeScreen(navController = navController) }
