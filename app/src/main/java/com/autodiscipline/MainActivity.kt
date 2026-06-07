@@ -1,9 +1,9 @@
 package com.autodiscipline
 
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
@@ -16,6 +16,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.autodiscipline.notification.NotificationScheduler
 import com.autodiscipline.presentation.navigation.Screen
 import com.autodiscipline.presentation.screens.HomeScreen
 import com.autodiscipline.presentation.screens.HistoryScreen
@@ -28,6 +29,15 @@ import dagger.hilt.android.AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Demander permission notifications Android 13+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            requestPermissions(arrayOf(android.Manifest.permission.POST_NOTIFICATIONS), 1)
+        }
+
+        // Programmer alarme 21h
+        NotificationScheduler.scheduleDaily21h(this)
+
         setContent {
             AutodisciplineTheme {
                 AutodisciplineApp()
@@ -58,9 +68,11 @@ fun AutodisciplineApp() {
                 ) {
                     NavigationBarItem(
                         selected = currentRoute == Screen.Home.route,
-                        onClick = { navController.navigate(Screen.Home.route) {
-                            popUpTo(Screen.Home.route) { inclusive = true }
-                        }},
+                        onClick = {
+                            navController.navigate(Screen.Home.route) {
+                                popUpTo(Screen.Home.route) { inclusive = true }
+                            }
+                        },
                         icon = { Text("⚔", fontSize = 20.sp) },
                         label = { Text("Quête", fontSize = 10.sp, fontWeight = FontWeight.Bold) },
                         colors = NavigationBarItemDefaults.colors(
@@ -71,9 +83,11 @@ fun AutodisciplineApp() {
                     )
                     NavigationBarItem(
                         selected = currentRoute == Screen.History.route,
-                        onClick = { navController.navigate(Screen.History.route) {
-                            popUpTo(Screen.Home.route)
-                        }},
+                        onClick = {
+                            navController.navigate(Screen.History.route) {
+                                popUpTo(Screen.Home.route)
+                            }
+                        },
                         icon = { Text("📜", fontSize = 20.sp) },
                         label = { Text("Historique", fontSize = 10.sp, fontWeight = FontWeight.Bold) },
                         colors = NavigationBarItemDefaults.colors(
@@ -84,9 +98,11 @@ fun AutodisciplineApp() {
                     )
                     NavigationBarItem(
                         selected = currentRoute == Screen.Statistics.route,
-                        onClick = { navController.navigate(Screen.Statistics.route) {
-                            popUpTo(Screen.Home.route)
-                        }},
+                        onClick = {
+                            navController.navigate(Screen.Statistics.route) {
+                                popUpTo(Screen.Home.route)
+                            }
+                        },
                         icon = { Text("📊", fontSize = 20.sp) },
                         label = { Text("Stats", fontSize = 10.sp, fontWeight = FontWeight.Bold) },
                         colors = NavigationBarItemDefaults.colors(
