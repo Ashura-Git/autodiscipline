@@ -20,6 +20,7 @@ import com.autodiscipline.notification.NotificationScheduler
 import com.autodiscipline.presentation.navigation.Screen
 import com.autodiscipline.presentation.screens.HomeScreen
 import com.autodiscipline.presentation.screens.HistoryScreen
+import com.autodiscipline.presentation.screens.IntroScreen
 import com.autodiscipline.presentation.screens.StatisticsScreen
 import com.autodiscipline.presentation.screens.WelcomeScreen
 import com.autodiscipline.ui.theme.AutodisciplineTheme
@@ -30,12 +31,10 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Demander permission notifications Android 13+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             requestPermissions(arrayOf(android.Manifest.permission.POST_NOTIFICATIONS), 1)
         }
 
-        // Programmer alarme 21h
         NotificationScheduler.scheduleDaily21h(this)
 
         setContent {
@@ -119,9 +118,9 @@ fun AutodisciplineApp() {
             navController = navController,
             startDestination = Screen.Welcome.route,
             modifier = Modifier.padding(paddingValues)
-            composable(Screen.Intro.route) { IntroScreen(navController = navController) }
         ) {
             composable(Screen.Welcome.route) { WelcomeScreen(navController = navController) }
+            composable(Screen.Intro.route) { IntroScreen(navController = navController) }
             composable(Screen.Home.route) { HomeScreen(navController = navController) }
             composable(Screen.History.route) { HistoryScreen(navController = navController) }
             composable(Screen.Statistics.route) { StatisticsScreen(navController = navController) }
