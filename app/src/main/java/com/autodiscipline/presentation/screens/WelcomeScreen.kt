@@ -12,7 +12,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
@@ -37,13 +36,11 @@ fun WelcomeScreen(navController: NavController, viewModel: WakeUpTimeViewModel =
     var selectedHour by remember { mutableStateOf(7) }
     var selectedMinute by remember { mutableStateOf(0) }
 
-    // Animation states
     var showSystem by remember { mutableStateOf(false) }
     var showNotification by remember { mutableStateOf(false) }
     var showContent by remember { mutableStateOf(false) }
     var showButton by remember { mutableStateOf(false) }
 
-    // Pulsation de la bordure
     val infiniteTransition = rememberInfiniteTransition(label = "pulse")
     val borderAlpha by infiniteTransition.animateFloat(
         initialValue = 0.4f,
@@ -68,12 +65,11 @@ fun WelcomeScreen(navController: NavController, viewModel: WakeUpTimeViewModel =
     LaunchedEffect(wakeUpTime) {
         if (wakeUpTime != null) {
             navController.navigate(Screen.Intro.route) {
-    popUpTo(Screen.Welcome.route) { inclusive = true }
-}
+                popUpTo(Screen.Welcome.route) { inclusive = true }
+            }
         }
     }
 
-    // Séquence d'animations
     LaunchedEffect(Unit) {
         delay(300)
         showSystem = true
@@ -91,7 +87,6 @@ fun WelcomeScreen(navController: NavController, viewModel: WakeUpTimeViewModel =
             .background(Color(0xFF0A0A0F)),
         contentAlignment = Alignment.Center
     ) {
-        // Effet de fond lumineux
         Box(
             modifier = Modifier
                 .size(300.dp)
@@ -109,8 +104,6 @@ fun WelcomeScreen(navController: NavController, viewModel: WakeUpTimeViewModel =
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.padding(24.dp)
         ) {
-
-            // Texte SYSTÈME
             AnimatedVisibility(
                 visible = showSystem,
                 enter = fadeIn(animationSpec = tween(600)) +
@@ -127,7 +120,6 @@ fun WelcomeScreen(navController: NavController, viewModel: WakeUpTimeViewModel =
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Carte principale notification
             AnimatedVisibility(
                 visible = showNotification,
                 enter = fadeIn(animationSpec = tween(800)) +
@@ -153,8 +145,6 @@ fun WelcomeScreen(navController: NavController, viewModel: WakeUpTimeViewModel =
                         .padding(24.dp)
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-
-                        // Icône + titre NOTIFICATION
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.Center,
@@ -187,7 +177,6 @@ fun WelcomeScreen(navController: NavController, viewModel: WakeUpTimeViewModel =
 
                         Spacer(modifier = Modifier.height(20.dp))
 
-                        // Message principal
                         AnimatedVisibility(
                             visible = showContent,
                             enter = fadeIn(animationSpec = tween(600)) +
@@ -215,7 +204,6 @@ fun WelcomeScreen(navController: NavController, viewModel: WakeUpTimeViewModel =
 
                                 Spacer(modifier = Modifier.height(24.dp))
 
-                                // Heure de réveil
                                 Text(
                                     text = "DÉFINIR L'HEURE DE RÉVEIL",
                                     color = Color(0xFF3498DB),
@@ -257,7 +245,6 @@ fun WelcomeScreen(navController: NavController, viewModel: WakeUpTimeViewModel =
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            // Bouton accepter
             AnimatedVisibility(
                 visible = showButton,
                 enter = fadeIn(animationSpec = tween(500)) +
@@ -267,6 +254,9 @@ fun WelcomeScreen(navController: NavController, viewModel: WakeUpTimeViewModel =
                     onClick = {
                         viewModel.saveWakeUpTime(selectedHour, selectedMinute)
                         Toast.makeText(context, "Bienvenue Chasseur !", Toast.LENGTH_SHORT).show()
+                        navController.navigate(Screen.Intro.route) {
+                            popUpTo(Screen.Welcome.route) { inclusive = true }
+                        }
                     },
                     modifier = Modifier
                         .fillMaxWidth()
