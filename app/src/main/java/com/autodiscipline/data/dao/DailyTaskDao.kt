@@ -4,7 +4,6 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import androidx.room.Update
 import com.autodiscipline.data.model.DailyTask
 import kotlinx.coroutines.flow.Flow
 
@@ -13,10 +12,10 @@ interface DailyTaskDao {
     @Query("SELECT * FROM daily_tasks ORDER BY `order` ASC")
     fun getAllDailyTasks(): Flow<List<DailyTask>>
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertDailyTask(dailyTask: DailyTask)
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertAllDailyTasks(dailyTasks: List<DailyTask>)
 
     @Query("SELECT COUNT(*) FROM daily_tasks")
